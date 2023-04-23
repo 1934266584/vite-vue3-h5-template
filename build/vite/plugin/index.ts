@@ -2,7 +2,6 @@ import type { Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { configStyleImportPlugin } from './styleImport'
-import { configMockPlugin } from './mock'
 import { configAutoImportPlugin } from './autoImport'
 import { configAutoComponentsPlugin } from './autocomponents'
 import { configCompressPlugin } from './compress'
@@ -26,9 +25,6 @@ export function createVitePlugins(viteEnv: ViteEnv, isBuild: boolean) {
 
 	// unplugin-auto-import
 	vitePlugins.push(configAutoImportPlugin())
-
-	// vite-plugin-mock
-	VITE_USE_MOCK && vitePlugins.push(configMockPlugin(isBuild))
 
 	// The following plugins only work in the production environment
 	if (isBuild) {
