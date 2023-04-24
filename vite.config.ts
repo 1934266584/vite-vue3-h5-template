@@ -1,56 +1,60 @@
-import { fileURLToPath } from 'url'
-import pkg from './package.json'
-import dayjs from 'dayjs'
-import { defineConfig, ConfigEnv, loadEnv } from 'vite'
-import { wrapperEnv } from './build/utils'
-import { createVitePlugins } from './build/vite/plugin'
-import { createProxy } from './build/vite/proxy'
-import { createBuild } from './build/vite/build'
-
-const { dependencies, devDependencies, name, version } = pkg
-// 应用信息
-const __APP_INFO__ = {
-	pkg: { dependencies, devDependencies, name, version },
-	lastBuildTime: dayjs().format('YYYY-MM-DD HH:mm:ss')
+{
+  "name": "vite2-vue3-h5-template",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite --mode development",
+    "test": "vite --mode test",
+    "prod": "vite --mode production",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:test": "vue-tsc --noEmit && vite build --mode test",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "npm run build && vite preview --port 5050",
+    "preview:dist": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint:lint-staged": "lint-staged",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@vueuse/core": "^7.5.3",
+    "axios": "^0.24.0",
+    "crypto-js": "^4.1.1",
+    "dayjs": "^1.10.7",
+    "pinia": "^2.0.9",
+    "pinia-plugin-persistedstate": "^1.0.3",
+    "vant": "^4.1.2",
+    "vue": "^3.2.26",
+    "vue-request": "^1.2.3",
+    "vue-router": "^4.0.12",
+    "weixin-js-sdk": "^1.6.0"
+  },
+  "devDependencies": {
+    "@rushstack/eslint-patch": "^1.1.0",
+    "@types/mockjs": "^1.0.4",
+    "@types/node": "^16.11.17",
+    "@vitejs/plugin-vue": "^2.0.1",
+    "@vitejs/plugin-vue-jsx": "^1.3.3",
+    "@vue/eslint-config-prettier": "^7.0.0",
+    "@vue/eslint-config-typescript": "^10.0.0",
+    "autoprefixer": "^10.4.2",
+    "cnjm-postcss-px-to-viewport": "^1.0.0",
+    "consola": "^3.1.0",
+    "eslint": "^8.5.0",
+    "eslint-plugin-vue": "^8.2.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.7",
+    "mockjs": "^1.1.0",
+    "postcss-px-to-viewport": "^1.1.1",
+    "prettier": "^2.5.1",
+    "sass": "^1.46.0",
+    "terser": "^5.17.1",
+    "typescript": "~4.5.4",
+    "unplugin-auto-import": "^0.5.10",
+    "unplugin-vue-components": "^0.17.11",
+    "vite": "^3.2.6",
+    "vite-plugin-compression": "^0.4.0",
+    "vite-plugin-mock": "^2.9.6",
+    "vite-plugin-style-import": "^2.0.0",
+    "vue-global-api": "^0.4.1",
+    "vue-tsc": "^0.29.8"
+  }
 }
-// https://vitejs.dev/config/
-export default defineConfig(({ command, mode }: ConfigEnv) => {
-	// console.log('command', command)
-	const root = process.cwd() // 当前工作目录
-	const isBuild = command === 'build' // 是否是构建 serve
-	const env = loadEnv(mode, root) // 加载env环境
-	// The boolean type read by loadEnv is a string. This function can be converted to boolean type
-	const viteEnv = wrapperEnv(env)
-	// console.log('viteEnv', viteEnv)
-
-	const { VITE_PUBLIC_PATH, VITE_OUTPUT_DIR } = viteEnv
-	return {
-		base: VITE_PUBLIC_PATH,
-		root,
-		plugins: createVitePlugins(viteEnv, isBuild),
-		resolve: {
-			alias: {
-				'@': fileURLToPath(new URL('./src', import.meta.url))
-			}
-		},
-		css: {
-			preprocessorOptions: {
-				scss: {
-					charset: false, // 避免出现: build时的 @charset 必须在第一行的警告
-					additionalData: `
-						@import "@/styles/mixin.scss";
-						@import "@/styles/variables.scss";
-					`
-				}
-			}
-		},
-		server: {
-			host: true,
-			proxy: createProxy()
-		},
-		build: createBuild(viteEnv),
-		define: {
-			__APP_INFO__: JSON.stringify(__APP_INFO__)
-		}
-	}
-})
